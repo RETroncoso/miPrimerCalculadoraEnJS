@@ -55,6 +55,9 @@ const operaciones = ({target}) => {
     if (target.id !== "igual" || symbol.length == 0) {
         return;
     }
+    if (symbol.length == 0) {
+        result.innerHTML = Number(numeroUno)
+    }
     if (symbol.trim() == "+") {
         result.innerHTML = Number(numeroUno) + Number(numeroDos);
         resultadoAnterior = Number(numeroUno) + Number(numeroDos);
