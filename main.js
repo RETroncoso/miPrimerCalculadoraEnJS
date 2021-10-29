@@ -6,102 +6,105 @@ const result = root.querySelector("#operation_");
 const buttons = root.querySelector(".calculator__body")
 const botonIgual = root.querySelector("#igual");
 
-let headerInfo = [];
-
-//Renderizado de numeros
-
-const renderNumeroUno = ({target}) => {
-    if (target.nodeName !== "BUTTON") {
-        return;
-    } else {
-        let primerNumero = target.innerText;
-        if (isNaN(primerNumero)) {
-            return;
-        }
-        headerInfo += primerNumero;
-        header.innerHTML = headerInfo;
-    }
-}
-
-const renderSymbol = ({target}) => {
-    if (target.nodeName !== "BUTTON") {
-        return;
-    } else {
-        let symbol = target.innerText
-        if (!isNaN(symbol) || headerInfo.length == 0 || symbol == "=" || symbol == "." || isNaN(headerInfo[headerInfo.length-1])) {
-            return;
-        }
-        headerInfo += symbol;
-        numeroUno += Number(header.innerText);
-        tipoDeOperacion = headerInfo[headerInfo.length-1];
-        header.innerHTML = headerInfo;
-        headerInfo = "";
-    }
-}
-
-const renderNumeroDos = ({target}) => {
-    if (target.nodeName !== "BUTTON" || !isNaN(headerInfo[headerInfo.length-1])) {
-        return;
-    } else {
-        let segundoNumero = target.innerText;
-        if (isNaN(segundoNumero)) {
-            return;
-        }
-        headerInfo += segundoNumero;
-        header.innerHTML = headerInfo;
-    }
-}
-
-//Logica de operaciones
-
+//Guardado de datos
 let numeroUno = [];
 let numeroDos = [];
-let tipoDeOperacion;
+let symbol = [];
+let headerInfo = [];
+let resultadoAnterior = [];
 
-const resultado = ({target}) => {
-    if (target.nodeName !== "BUTTON" || target.id !== "igual") {
+//Visual
+
+const renderNumeroUno = ({target}) => {
+    if (target.className !== "numero" || symbol.length !== 0) {
         return;
     }
-    numeroDos += Number(header.innerText);
-    let total;
-    if (tipoDeOperacion == "+") {
-        total = (Number(numeroUno) + Number(numeroDos));
-        result.innerHTML = total;
-        headerInfo = "";
-        numeroUno = [];
-        numeroDos = [];
+    resultadoAnterior = [];
+    numeroUno += Number(target.innerHTML);
+    headerInfo += Number(target.innerHTML)
+    header.innerHTML = headerInfo;
+};
+
+const renderSymbol = ({target}) => {
+    if (target.className !== "--fn" || symbol.length !== 0 || (numeroUno.length == 0 && resultadoAnterior.length == 0)) {
+        return;
     }
-    if (tipoDeOperacion == "-") {
-        total = (Number(numeroUno) - Number(numeroDos));
-        result.innerHTML = total;
-        headerInfo = "";
-        numeroUno = [];
-        numeroDos = [];
+    if (resultadoAnterior.length !== 0) {
+        numeroUno = resultadoAnterior;
+        headerInfo = [];
+        headerInfo += Number(resultadoAnterior)
+        header.innerHTML = headerInfo;
     }
-    if (tipoDeOperacion == "x") {
-        total = (Number(numeroUno) * Number(numeroDos));
-        result.innerHTML = total;
-        headerInfo = "";
-        numeroUno = [];
-        numeroDos = [];
+    symbol += target.innerHTML;
+    headerInfo += target.innerHTML;
+    header.innerHTML = headerInfo;
+};
+
+const renderNumerDos = ({target}) => {
+    if (target.className !== "numero" || symbol.length == 0) {
+        return;
     }
-    if (tipoDeOperacion == "/") {
-        total = (Number(numeroUno) / Number(numeroDos));
-        result.innerHTML = total;
-        headerInfo = "";
-        numeroUno = [];
-        numeroDos = [];
+    numeroDos += Number(target.innerHTML);
+    headerInfo += Number(target.innerHTML);
+    header.innerHTML = headerInfo;
+}
+
+//Logica
+
+const operaciones = ({target}) => {
+    if (target.id !== "igual" || symbol.length == 0) {
+        return;
+    }
+    if (symbol.trim() == "+") {
+        result.innerHTML = Number(numeroUno) + Number(numeroDos);
+        resultadoAnterior = Number(numeroUno) + Number(numeroDos);
+        borrarIgual();
+        return;
+    }
+    if (symbol.trim() == "-") {
+        result.innerHTML = Number(numeroUno) - Number(numeroDos);
+        resultadoAnterior = Number(numeroUno) - Number(numeroDos);
+        borrarIgual();
+        return;
+    }
+    if (symbol.trim() == "/") {
+        result.innerHTML = Number(numeroUno) / Number(numeroDos);
+        resultadoAnterior = Number(numeroUno) / Number(numeroDos);
+        borrarIgual();
+        return;
+    }
+    if (symbol.trim() == "x") {
+        result.innerHTML = Number(numeroUno) * Number(numeroDos);
+        resultadoAnterior = Number(numeroUno) * Number(numeroDos);
+        borrarIgual();
+        return;
     }
 }
 
+const borrarIgual = () => {
+        numeroUno = [];
+        numeroDos = [];
+        symbol = [];
+        header.innerHTML = [];
+        headerInfo = [];
+};
+
+const borrarTodo = ({target}) => {
+    if (target.className == "--border") {
+        borrarIgual();
+        resultadoAnterior = [];
+        result.innerHTML = [];
+    }
+}
 
 //Declaracion de eventos
 
 const init = () => {
     buttons.addEventListener("click", renderNumeroUno);
     buttons.addEventListener("click", renderSymbol);
-    buttons.addEventListener("click", renderNumeroDos);
-    buttons.addEventListener("click", resultado);
+    buttons.addEventListener("click", renderNumerDos);
+    buttons.addEventListener("click", operaciones);
+    buttons.addEventListener("click", borrarTodo);
 }
 
 //Inicializador
